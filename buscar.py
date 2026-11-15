@@ -1,36 +1,35 @@
-import json, re, urllib.request
-from datetime import datetime, timezone
-from pathlib import Path
-
-ROOT = Path(__file__).parent
-OUTPUT = ROOT / 'vagas.json'
-API = 'https://www.arbeitnow.com/api/job-board-api'
-KEYWORDS = ('data entry','annotation','annotator','ai trainer','ai training','content moderator','transcription','transcriber','search evaluator','data labeling','virtual assistant','customer support','portuguese','brazil','entry level')
-EXCLUDE = ('senior','staff engineer','principal engineer','lead engineer','5+ years','7+ years')
-
-def clean(s):
-    return re.sub('<[^>]+>', ' ', s or '').replace('&nbsp;', ' ').strip()
-
-def main():
-    req = urllib.request.Request(API, headers={'User-Agent': 'CacadorVagas/1.0 (personal job discovery)'})
-    with urllib.request.urlopen(req, timeout=30) as response:
-        jobs = json.load(response).get('data', [])
-    found = []
-    for job in jobs:
-        title = clean(job.get('title'))
-        desc = clean(job.get('description'))
-        text = (title + ' ' + desc).lower()
-        if not job.get('remote') or not any(k in text for k in KEYWORDS) or any(k in title.lower() for k in EXCLUDE):
-            continue
-        found.append({'titulo': title, 'empresa': job.get('company_name',''), 'local': job.get('location',''), 'link': job.get('url',''), 'descricao': desc[:350], 'data': job.get('created_at',''), 'verificar_elegibilidade': True})
-    previous = []
-    if OUTPUT.exists():
-        try: previous = json.loads(OUTPUT.read_text(encoding='utf-8')).get('vagas', [])
-        except (ValueError, OSError): pass
-    merged = {j['link']: j for j in previous + found if j.get('link')}
-    results = sorted(merged.values(), key=lambda x: str(x.get('data','')), reverse=True)[:200]
-    OUTPUT.write_text(json.dumps({'atualizado':datetime.now(timezone.utc).isoformat(), 'vagas':results}, ensure_ascii=False, indent=2), encoding='utf-8')
-    print(f'{len(found)} vagas encontradas nesta busca; {len(results)} no painel')
-
-if __name__ == '__main__':
-    main()
+{
+  "atualizado": "2026-11-15T15:24:05.067071+00:00",
+  "vagas": [
+    {
+      "titulo": "Remote Office Assistant",
+      "empresa": "Coalition Technologies",
+      "local": "Worldwide",
+      "link": "https://remotive.com/remote-jobs/marketing/remote-office-assistant-1680495",
+      "descricao": "Coalition Technologies is seeking a reliable, detail-oriented, and highly organized Remote Office Assistant to support administrative, bookkeeping, billing, reporting, data entry, and internal operations tasks. This role is ideal for someone with strong communication skills, discretion, attention to detail, and a willingness to learn and grow withi",
+      "data": "2026-11-11T20:17:48",
+      "verificar_elegibilidade": true,
+      "fonte": "Remotive"
+    },
+    {
+      "titulo": "AI Trainer - Video Annotation",
+      "empresa": "iMerit Technology",
+      "local": "Worldwide",
+      "link": "https://remotive.com/remote-jobs/artificial-intelligence/ai-trainer-video-annotation-2091161",
+      "descricao": "AI Trainer - Video Annotation    Remote   |   Independent Contractor                Prove your skills. Get certified.     Robotics AI is advancing rapidly, and high-quality video data helps intelligent systems better understand the world around them. We are inviting detail-oriented professionals to complete our certification process for potential r",
+      "data": "2026-10-22T18:40:19",
+      "verificar_elegibilidade": true,
+      "fonte": "Remotive"
+    },
+    {
+      "titulo": "Software Engineer, AI Coding Tasks",
+      "empresa": "Askable",
+      "local": "Worldwide",
+      "link": "https://remotive.com/remote-jobs/software-development/software-engineer-ai-coding-tasks-2091158",
+      "descricao": "We're looking for experienced software engineers to build AI coding tasks from a codebase they know well. US$1,000 per task, and you can do as many tasks as you want. \n   \n You turn a real change from a repository you know into a task that today's best AI coding models struggle with: hard for the models, but fair for a skilled engineer. Your tasks ",
+      "data": "2026-10-17T16:04:29",
+      "verificar_elegibilidade": true,
+      "fonte": "Remotive"
+    }
+  ]
+}
